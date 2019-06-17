@@ -1,0 +1,80 @@
+group = rootProject.ext.publishedGroupId
+version = rootProject.ext.libraryVersion
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+            groupId rootProject.ext.publishedGroupId
+            artifactId rootProject.ext.artifact
+
+            name rootProject.ext.libraryName
+            description rootProject.ext.libraryDescription
+            url rootProject.ext.siteUrl
+
+            licenses {
+                license {
+                    name rootProject.ext.licenseName
+                    url rootProject.ext.licenseUrl
+                }
+            }
+            developers {
+                developer {
+                    id rootProject.ext.developerId
+                    name rootProject.ext.developerName
+                    email rootProject.ext.developerEmail
+                }
+            }
+            scm {
+                connection rootProject.ext.gitUrl
+                developerConnection rootProject.ext.gitUrl
+                url rootProject.ext.siteUrl
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = rootProject.ext.bintrayRepo
+        name = rootProject.ext.bintrayName
+        desc = rootProject.ext.libraryDescription
+        websiteUrl = rootProject.ext.siteUrl
+        vcsUrl = rootProject.ext.gitUrl
+        licenses = rootProject.ext.allLicenses
+        dryRun = false
+        publish = true
+        override = false
+        publicDownloadNumbers = true
+        version {
+            desc = rootProject.ext.libraryDescription
+        }
+    }
+}

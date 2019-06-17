@@ -3,6 +3,12 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+tasks.withType(Javadoc).all {
+    enabled = false
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -36,3 +42,6 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+
+apply from: 'bintray.gradle'
