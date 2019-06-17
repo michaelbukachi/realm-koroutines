@@ -42,7 +42,7 @@ ext {
     bintrayRepo = 'realm'
     bintrayName = 'realm-koroutines'
 
-    publishedGroupId = 'com.michaelbukachi.realmkoroutines'
+    publishedGroupId = 'com.michaelbukachi'
     libraryName = 'RealmKoroutines'
     artifact = 'realmkoroutines'
 
