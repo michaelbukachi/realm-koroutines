@@ -1,7 +1,9 @@
+[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=0.1.1) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/0.1.1/link)
+
 Realm Coroutines
 ----------------
 
-A collection of convenience extension functions for realm database
+A collection of convenience extension functions for realm database.
 
 
 Usage
@@ -41,6 +43,13 @@ val result = realm.where<TestObject>().firstOffline()
 launch(Dispatchers.IO) {
     // Do something with result
 }
+```
+
+Download
+--------
+
+```groovy
+implementation 'com.michaelbukachi:realmkoroutines:0.1.1'
 ```
 
 License
