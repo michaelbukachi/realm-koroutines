@@ -17,6 +17,39 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwait(query: S
         query.findFirstAsync().addChangeListener(listener)
     }
 
+private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(query: S): List<T> =
+    suspendCancellableCoroutine { continuation ->
+        val realm = query.realm
+        val listener = RealmChangeListener<RealmResults<T>> { t -> continuation.resume(realm.copyFromRealm(t)) }
+        query.findAllAsync().addChangeListener(listener)
+    }
+
+private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(query: S): T? =
+    suspendCancellableCoroutine { continuation ->
+        val realm = query.realm
+        val listener = RealmChangeListener { t: T? ->
+            t?.let {
+                continuation.resume(realm.copyFromRealm(it))
+            } ?: run {
+                continuation.resume(t)
+            }
+
+        }
+        query.findFirstAsync().addChangeListener(listener)
+    }
+
+private fun <T : RealmObject, S : RealmQuery<T>> findFirstOffline(query: S): T? {
+    val realm = query.realm
+    val t = query.findFirst()
+    return t?.let { realm.copyFromRealm(it) } ?: t
+}
+
+private fun <T : RealmObject, S : RealmQuery<T>> findAllOffline(query: S): List<T> {
+    val realm = query.realm
+    val t = query.findAll()
+    return realm.copyFromRealm(t)
+}
+
 private suspend fun executeAsync(realm: Realm, block: (Realm) -> Unit): Unit =
     suspendCancellableCoroutine { continuation ->
         realm.executeTransactionAsync(
@@ -28,5 +61,13 @@ private suspend fun executeAsync(realm: Realm, block: (Realm) -> Unit): Unit =
 suspend fun <S : RealmObject> RealmQuery<S>.await() = findAllAwait(this)
 
 suspend fun <S : RealmObject> RealmQuery<S>.awaitFirst() = findFirstAwait(this)
+
+suspend fun <S : RealmObject> RealmQuery<S>.awaitAllOffline() = findAllAwaitOffline(this)
+
+suspend fun <S : RealmObject> RealmQuery<S>.awaitFirstOffline() = findFirstAwaitOffline(this)
+
+fun <S : RealmObject> RealmQuery<S>.allOffline() = findAllOffline(this)
+
+fun <S : RealmObject> RealmQuery<S>.firstOffline() = findFirstOffline(this)
 
 suspend fun Realm.transactAwait(block: (Realm) -> Unit) = executeAsync(this, block)
