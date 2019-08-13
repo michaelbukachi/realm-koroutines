@@ -1,5 +1,6 @@
 package com.michaelbukachi.realmkoroutines.sample
 
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.michaelbukachi.realmkoroutines.allOffline
 import com.michaelbukachi.realmkoroutines.awaitAllOffline
@@ -7,8 +8,8 @@ import com.michaelbukachi.realmkoroutines.awaitFirstOffline
 import com.michaelbukachi.realmkoroutines.firstOffline
 import io.realm.RealmResults
 import io.realm.kotlin.where
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -47,16 +48,19 @@ class RealmKtTest {
         Assert.assertFalse(resultList is RealmResults)
     }
 
+    @UiThreadTest
     @Test
-    fun testAsyncOffline() = runBlocking(Dispatchers.Main) {
-        val realm = testRealm()
-        val result = realm.where<TestObject>().awaitFirstOffline()
-        Assert.assertEquals("Some Test", result!!.name)
+    fun testAsyncOffline(): Unit = runBlocking {
+        withTimeout(10000) {
+            val realm = testRealm()
+            val result = realm.where<TestObject>().awaitFirstOffline()
+            Assert.assertEquals("Some Test", result!!.name)
 
-        val resultList = realm.where<TestObject>().awaitAllOffline()
-        Assert.assertTrue(resultList.isNotEmpty())
-        Assert.assertFalse(resultList is RealmResults)
+            val resultList = realm.where<TestObject>().awaitAllOffline()
+            Assert.assertTrue(resultList.isNotEmpty())
+            Assert.assertFalse(resultList is RealmResults)
+        }
+
     }
-
 
 }

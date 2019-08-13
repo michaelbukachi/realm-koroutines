@@ -7,20 +7,32 @@ import kotlin.coroutines.resumeWithException
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwait(query: S): RealmResults<T> =
     suspendCancellableCoroutine { continuation ->
-        val listener = RealmChangeListener<RealmResults<T>> { t -> continuation.resume(t) }
+        val listener = RealmChangeListener<RealmResults<T>> { t ->
+            if (continuation.isActive) {
+                continuation.resume(t)
+            }
+        }
         query.findAllAsync().addChangeListener(listener)
     }
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwait(query: S): T? =
     suspendCancellableCoroutine { continuation ->
-        val listener = RealmChangeListener { t: T? -> continuation.resume(t) }
+        val listener = RealmChangeListener { t: T? ->
+            if (continuation.isActive) {
+                continuation.resume(t)
+            }
+        }
         query.findFirstAsync().addChangeListener(listener)
     }
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(query: S): List<T> =
     suspendCancellableCoroutine { continuation ->
         val realm = query.realm
-        val listener = RealmChangeListener<RealmResults<T>> { t -> continuation.resume(realm.copyFromRealm(t)) }
+        val listener = RealmChangeListener<RealmResults<T>> { t ->
+            if (continuation.isActive) {
+                continuation.resume(realm.copyFromRealm(t))
+            }
+        }
         query.findAllAsync().addChangeListener(listener)
     }
 
@@ -28,12 +40,13 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(q
     suspendCancellableCoroutine { continuation ->
         val realm = query.realm
         val listener = RealmChangeListener { t: T? ->
-            t?.let {
-                continuation.resume(realm.copyFromRealm(it))
-            } ?: run {
-                continuation.resume(t)
+            if (continuation.isActive) {
+                t?.let {
+                    continuation.resume(realm.copyFromRealm(it))
+                } ?: run {
+                    continuation.resume(t)
+                }
             }
-
         }
         query.findFirstAsync().addChangeListener(listener)
     }
