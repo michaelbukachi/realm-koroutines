@@ -1,6 +1,10 @@
 package com.michaelbukachi.realmkoroutines
 
 import io.realm.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -71,6 +75,19 @@ private suspend fun executeAsync(realm: Realm, block: (Realm) -> Unit): Unit =
                     { continuation.resume(Unit) },
                     { continuation.resumeWithException(it) })
         }
+
+
+@ExperimentalCoroutinesApi
+suspend fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<S> = callbackFlow {
+    val listener = RealmChangeListener<RealmResults<S>> { t ->
+        t.forEach {
+            offer(it)
+        }
+    }
+    val results = findAllAsync()
+    results.addChangeListener(listener)
+    awaitClose { results.removeAllChangeListeners() }
+}
 
 suspend fun <S : RealmObject> RealmQuery<S>.await() = findAllAwait(this)
 

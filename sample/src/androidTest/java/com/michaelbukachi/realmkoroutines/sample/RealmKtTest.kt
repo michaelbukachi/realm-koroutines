@@ -1,14 +1,14 @@
 package com.michaelbukachi.realmkoroutines.sample
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.michaelbukachi.realmkoroutines.allOffline
-import com.michaelbukachi.realmkoroutines.awaitAllOffline
-import com.michaelbukachi.realmkoroutines.awaitFirstOffline
-import com.michaelbukachi.realmkoroutines.firstOffline
+import com.michaelbukachi.realmkoroutines.*
 import io.realm.RealmResults
 import io.realm.kotlin.where
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -18,6 +18,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@InternalCoroutinesApi
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 class RealmKtTest {
@@ -44,7 +45,7 @@ class RealmKtTest {
     fun testSyncOffline() {
         val realm = testRealm()
         val result = realm.where<TestObject>().firstOffline()
-        Assert.assertEquals("Some Test", result!!.name)
+        assertThat(result?.name, `is`("Some Test"))
 
         val resultList = realm.where<TestObject>().allOffline()
         Assert.assertTrue(resultList.isNotEmpty())
@@ -59,9 +60,15 @@ class RealmKtTest {
 
         val resultList = realm.where<TestObject>().awaitAllOffline()
         assertThat(resultList.isNotEmpty(), `is`(true))
-//            Assert.assertTrue(resultList.isNotEmpty())
-//            Assert.assertFalse(resultList is RealmResults)
 
+    }
+
+    @Test
+    fun testFlow(): Unit = runBlocking(Dispatchers.Main) {
+        val realm = testRealm()
+        val resultsFlow = realm.where<TestObject>().flowAll()
+        val testObject = resultsFlow.take(1).first()
+        assertThat(testObject.name, `is`("Some Test"))
     }
 
 }
