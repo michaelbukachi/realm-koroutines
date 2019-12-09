@@ -89,6 +89,18 @@ suspend fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<S> = callbackFlow {
     awaitClose { results.removeAllChangeListeners() }
 }
 
+@ExperimentalCoroutinesApi
+suspend fun <S : RealmObject> RealmQuery<S>.flowAllOffline(): Flow<S> = callbackFlow {
+    val listener = RealmChangeListener<RealmResults<S>> { t ->
+        t.forEach {
+            offer(realm.copyFromRealm(it))
+        }
+    }
+    val results = findAllAsync()
+    results.addChangeListener(listener)
+    awaitClose { results.removeAllChangeListeners() }
+}
+
 suspend fun <S : RealmObject> RealmQuery<S>.await() = findAllAwait(this)
 
 suspend fun <S : RealmObject> RealmQuery<S>.awaitFirst() = findFirstAwait(this)

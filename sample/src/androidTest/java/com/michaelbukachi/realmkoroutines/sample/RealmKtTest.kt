@@ -71,4 +71,12 @@ class RealmKtTest {
         assertThat(testObject.name, `is`("Some Test"))
     }
 
+    @Test
+    fun testFlowOffline(): Unit = runBlocking(Dispatchers.Main) {
+        val realm = testRealm()
+        val resultsFlow = realm.where<TestObject>().flowAllOffline()
+        val testObject = resultsFlow.take(1).first()
+        assertThat(testObject.name, `is`("Some Test"))
+    }
+
 }
