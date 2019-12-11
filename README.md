@@ -49,7 +49,7 @@ Download
 --------
 
 ```groovy
-implementation 'com.michaelbukachi:realmkoroutines:0.1.1'
+implementation 'com.michaelbukachi:realmkoroutines:0.1.2'
 ```
 
 License
