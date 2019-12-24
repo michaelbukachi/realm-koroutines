@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=0.1.2) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/0.1.2/link)
+[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=0.1.3) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/0.1.2/link)
 
 Realm Coroutines
 ----------------
@@ -44,12 +44,21 @@ launch(Dispatchers.IO) {
     // Do something with result
 }
 ```
+With flows:
+```kotlin
+ launch(Dispatchers.IO) {
+    val realm = Realm.getDefaultInstance()
+    val resultsFlow = realm.where<TestObject>().flowAll()
+    val testObject = resultsFlow.take(1).first()
+ }
+ 
+```
 
 Download
 --------
 
 ```groovy
-implementation 'com.michaelbukachi:realmkoroutines:0.1.2'
+implementation 'com.michaelbukachi:realmkoroutines:0.1.3'
 ```
 
 License
