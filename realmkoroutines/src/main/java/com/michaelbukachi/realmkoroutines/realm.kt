@@ -78,11 +78,9 @@ private suspend fun executeAsync(realm: Realm, block: (Realm) -> Unit): Unit =
 
 
 @ExperimentalCoroutinesApi
-suspend fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<S> = callbackFlow {
+suspend fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<List<S>> = callbackFlow {
     val listener = RealmChangeListener<RealmResults<S>> { t ->
-        t.forEach {
-            offer(it)
-        }
+        offer(t)
     }
     val results = findAllAsync()
     results.addChangeListener(listener)
@@ -90,11 +88,9 @@ suspend fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<S> = callbackFlow {
 }
 
 @ExperimentalCoroutinesApi
-suspend fun <S : RealmObject> RealmQuery<S>.flowAllOffline(): Flow<S> = callbackFlow {
+suspend fun <S : RealmObject> RealmQuery<S>.flowAllOffline(): Flow<List<S>> = callbackFlow {
     val listener = RealmChangeListener<RealmResults<S>> { t ->
-        t.forEach {
-            offer(realm.copyFromRealm(it))
-        }
+        offer(realm.copyFromRealm(t))
     }
     val results = findAllAsync()
     results.addChangeListener(listener)
