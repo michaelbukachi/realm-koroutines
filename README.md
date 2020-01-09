@@ -49,7 +49,7 @@ With flows:
  launch(Dispatchers.IO) {
     val realm = Realm.getDefaultInstance()
     val resultsFlow = realm.where<TestObject>().flowAll()
-    val testObject = resultsFlow.take(1).first()
+    val testObjects = resultsFlow.take(1).first()
  }
  
 ```
@@ -58,7 +58,7 @@ Download
 --------
 
 ```groovy
-implementation 'com.michaelbukachi:realmkoroutines:0.1.3'
+implementation 'com.michaelbukachi:realmkoroutines:0.1.4'
 ```
 
 License
