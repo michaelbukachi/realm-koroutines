@@ -81,4 +81,19 @@ class RealmKtTest {
         assertThat(testObjects.first().name, `is`(testObject.name))
     }
 
+    @Test
+    fun testBulkOffline(): Unit = runBlocking(Dispatchers.Main) {
+        val realm = testRealm()
+        realm.transactAwait {
+            it.delete(TestObject::class.java)
+            val objects = mutableListOf<TestObject>()
+            for (i in 1..1000) {
+                objects.add(TestObject(name = "Some Test $i"))
+            }
+            it.copyToRealm(objects)
+        }
+        val resultsFlow = realm.where<TestObject>().flowAllOffline()
+        val testObjects = resultsFlow.take(1)
+        assertThat(testObjects.first().size, `is`(1000))
+    }
 }
