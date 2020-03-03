@@ -16,7 +16,11 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwait(query: S):
                     continuation.resume(t)
                 }
             }
-            query.findAllAsync().addChangeListener(listener)
+            val results = query.findAllAsync()
+            results.addChangeListener(listener)
+            continuation.invokeOnCancellation {
+                results.removeChangeListener(listener)
+            }
         }
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwait(query: S): T? =
@@ -26,7 +30,11 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwait(query: S
                     continuation.resume(t)
                 }
             }
-            query.findFirstAsync().addChangeListener(listener)
+            val result = query.findFirstAsync()
+            result.addChangeListener(listener)
+            continuation.invokeOnCancellation {
+                result.removeChangeListener(listener)
+            }
         }
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(query: S): List<T> =
@@ -37,7 +45,11 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(que
                     continuation.resume(realm.copyFromRealm(t))
                 }
             }
-            query.findAllAsync().addChangeListener(listener)
+            val results = query.findAllAsync()
+            results.addChangeListener(listener)
+            continuation.invokeOnCancellation {
+                results.removeChangeListener(listener)
+            }
         }
 
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(query: S): T? =
@@ -53,7 +65,11 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(q
                 }
 
             }
-            query.findFirstAsync().addChangeListener(listener)
+            val result = query.findFirstAsync()
+            result.addChangeListener(listener)
+            continuation.invokeOnCancellation {
+                result.removeChangeListener(listener)
+            }
         }
 
 private fun <T : RealmObject, S : RealmQuery<T>> findFirstOffline(query: S): T? {
