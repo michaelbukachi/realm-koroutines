@@ -55,7 +55,7 @@ suspend inline fun <reified T : RealmObject, reified S : RealmQuery<T>> findAllA
 suspend inline fun <reified T : RealmObject, reified S : RealmQuery<T>> findFirstAwaitOffline(query: S): T? =
     suspendCancellableCoroutine { continuation ->
         val realm = query.realm
-        val listener = RealmChangeListener { t: T? ->
+        val listener = RealmChangeListener<T> { t: T? ->
             if (continuation.isActive) {
                 t?.let {
                     continuation.resume(realm.copyFromRealm(it))
