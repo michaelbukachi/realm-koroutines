@@ -55,7 +55,11 @@ artifacts {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+try {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Exception ignored) {
+    // File does not exist on ci
+}
 
 bintray {
     user = properties.getProperty("bintray.user")
