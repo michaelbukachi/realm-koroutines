@@ -72,11 +72,3 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :realmkoroutines:bintrayUpload
-  generate-changelog:
-    needs: instrumentation-tests
-    name: Generate changelog
-    runs-on: ubuntu-latest
-    steps:
-      - uses: heinrichreimer/github-changelog-generator-action@v2.1.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
