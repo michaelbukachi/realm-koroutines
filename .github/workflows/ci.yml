@@ -1,6 +1,9 @@
 # See https://github.com/coil-kt/coil/blob/master/.github/workflows/ci.yml
 name: CI
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 jobs:
   instrumentation-tests:
     name: Instrumentation tests
