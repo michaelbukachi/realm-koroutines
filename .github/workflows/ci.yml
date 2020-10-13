@@ -65,12 +65,10 @@ jobs:
         shell: bash
         env:
           LOCAL_PROPERTIES: ${{secrets.GRADLE_LOCAL_PROPERTIES}}
-      - name: Instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Deploy
+        uses: eskatos/gradle-command-action@v1
         with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86
-          script: ./gradlew :realmkoroutines:bintrayUpload
+          arguments: :realmkoroutines:bintrayUpload
   generate-changelog:
     needs: instrumentation-tests
     name: Generate changelog
