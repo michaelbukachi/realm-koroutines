@@ -1,3 +1,7 @@
+## [Unreleased]
+### Changed
+- Replaced `removeAllChangeListeners` with `removeChangeListener(listener)`
+
 ##  [0.1.6] - 2020-10-13
 ### Changed
 - Updated dependencies

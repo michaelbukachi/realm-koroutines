@@ -100,7 +100,7 @@ fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<List<S>> = callbackFlow {
     }
     val results = findAllAsync()
     results.addChangeListener(listener)
-    awaitClose { results.removeAllChangeListeners() }
+    awaitClose { results.removeChangeListener(listener) }
 }
 
 @ExperimentalCoroutinesApi
@@ -110,7 +110,7 @@ fun <S : RealmObject> RealmQuery<S>.flowAllOffline(): Flow<List<S>> = callbackFl
     }
     val results = findAllAsync()
     results.addChangeListener(listener)
-    awaitClose { results.removeAllChangeListeners() }
+    awaitClose { results.removeChangeListener(listener) }
 }
 
 suspend fun <S : RealmObject> RealmQuery<S>.await() = findAllAwait(this)
