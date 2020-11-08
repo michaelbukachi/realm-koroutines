@@ -9,6 +9,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+class FrozenException : Exception("Only non frozen realm objects can be awaited")
+
 private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwait(query: S): RealmResults<T> =
         suspendCancellableCoroutine { continuation ->
             val listener = RealmChangeListener<RealmResults<T>> { t ->
@@ -17,6 +19,9 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwait(query: S):
                 }
             }
             val results = query.findAllAsync()
+            if (results.isFrozen) {
+                throw FrozenException()
+            }
             results.addChangeListener(listener)
             continuation.invokeOnCancellation {
                 results.removeChangeListener(listener)
@@ -31,13 +36,16 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwait(query: S
                 }
             }
             val result = query.findFirstAsync()
+            if (result.isFrozen) {
+                throw FrozenException()
+            }
             result.addChangeListener(listener)
             continuation.invokeOnCancellation {
                 result.removeChangeListener(listener)
             }
         }
 
-private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(query: S): List<T> =
+private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitSafe(query: S): List<T> =
         suspendCancellableCoroutine { continuation ->
             val realm = query.realm
             val listener = RealmChangeListener<RealmResults<T>> { t ->
@@ -46,13 +54,16 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitOffline(que
                 }
             }
             val results = query.findAllAsync()
+            if (results.isFrozen) {
+                throw FrozenException()
+            }
             results.addChangeListener(listener)
             continuation.invokeOnCancellation {
                 results.removeChangeListener(listener)
             }
         }
 
-private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(query: S): T? =
+private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitSafe(query: S): T? =
         suspendCancellableCoroutine { continuation ->
             val realm = query.realm
             val listener = RealmChangeListener { t: T? ->
@@ -66,19 +77,22 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitOffline(q
 
             }
             val result = query.findFirstAsync()
+            if (result.isFrozen) {
+                throw FrozenException()
+            }
             result.addChangeListener(listener)
             continuation.invokeOnCancellation {
                 result.removeChangeListener(listener)
             }
         }
 
-private fun <T : RealmObject, S : RealmQuery<T>> findFirstOffline(query: S): T? {
+private fun <T : RealmObject, S : RealmQuery<T>> findFirstSafe(query: S): T? {
     val realm = query.realm
     val t = query.findFirst()
     return t?.let { realm.copyFromRealm(it) } ?: t
 }
 
-private fun <T : RealmObject, S : RealmQuery<T>> findAllOffline(query: S): List<T> {
+private fun <T : RealmObject, S : RealmQuery<T>> findAllSafe(query: S): List<T> {
     val realm = query.realm
     val t = query.findAll()
     return realm.copyFromRealm(t)
@@ -99,16 +113,23 @@ fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<List<S>> = callbackFlow {
         offer(t)
     }
     val results = findAllAsync()
+    if (results.isFrozen) {
+        throw FrozenException()
+    }
     results.addChangeListener(listener)
     awaitClose { results.removeChangeListener(listener) }
 }
 
 @ExperimentalCoroutinesApi
-fun <S : RealmObject> RealmQuery<S>.flowAllOffline(): Flow<List<S>> = callbackFlow {
+fun <S : RealmObject> RealmQuery<S>.flowAllSafe(): Flow<List<S>> = callbackFlow {
     val listener = RealmChangeListener<RealmResults<S>> { t ->
+
         offer(realm.copyFromRealm(t))
     }
     val results = findAllAsync()
+    if (results.isFrozen) {
+        throw FrozenException()
+    }
     results.addChangeListener(listener)
     awaitClose { results.removeChangeListener(listener) }
 }
@@ -117,12 +138,12 @@ suspend fun <S : RealmObject> RealmQuery<S>.await() = findAllAwait(this)
 
 suspend fun <S : RealmObject> RealmQuery<S>.awaitFirst() = findFirstAwait(this)
 
-suspend fun <S : RealmObject> RealmQuery<S>.awaitAllOffline() = findAllAwaitOffline(this)
+suspend fun <S : RealmObject> RealmQuery<S>.safelyAwaitAll() = findAllAwaitSafe(this)
 
-suspend fun <S : RealmObject> RealmQuery<S>.awaitFirstOffline() = findFirstAwaitOffline(this)
+suspend fun <S : RealmObject> RealmQuery<S>.safleyAwaitFirst() = findFirstAwaitSafe(this)
 
-fun <S : RealmObject> RealmQuery<S>.allOffline() = findAllOffline(this)
+fun <S : RealmObject> RealmQuery<S>.allSafe() = findAllSafe(this)
 
-fun <S : RealmObject> RealmQuery<S>.firstOffline() = findFirstOffline(this)
+fun <S : RealmObject> RealmQuery<S>.firstSafe() = findFirstSafe(this)
 
 suspend fun Realm.transactAwait(block: (Realm) -> Unit) = executeAsync(this, block)

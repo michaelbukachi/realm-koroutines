@@ -42,23 +42,23 @@ class RealmKtTest {
     }
 
     @Test
-    fun testSyncOffline() {
+    fun testSyncSafe() {
         val realm = testRealm()
-        val result = realm.where<TestObject>().firstOffline()
+        val result = realm.where<TestObject>().firstSafe()
         assertThat(result?.name, `is`("Some Test"))
 
-        val resultList = realm.where<TestObject>().allOffline()
+        val resultList = realm.where<TestObject>().allSafe()
         Assert.assertTrue(resultList.isNotEmpty())
         Assert.assertFalse(resultList is RealmResults)
     }
 
     @Test
-    fun testAsyncOffline(): Unit = runBlocking(Dispatchers.Main) {
+    fun testAsyncSafe(): Unit = runBlocking(Dispatchers.Main) {
         val realm = testRealm()
-        val result = realm.where<TestObject>().awaitFirstOffline()
+        val result = realm.where<TestObject>().safleyAwaitFirst()
         assertThat(result?.name, `is`("Some Test"))
 
-        val resultList = realm.where<TestObject>().awaitAllOffline()
+        val resultList = realm.where<TestObject>().safelyAwaitAll()
         assertThat(resultList.isNotEmpty(), `is`(true))
 
     }
@@ -73,16 +73,16 @@ class RealmKtTest {
     }
 
     @Test
-    fun testFlowOffline(): Unit = runBlocking(Dispatchers.Main) {
+    fun testFlowSafe(): Unit = runBlocking(Dispatchers.Main) {
         val realm = testRealm()
-        val resultsFlow = realm.where<TestObject>().flowAllOffline()
+        val resultsFlow = realm.where<TestObject>().flowAllSafe()
         val testObjects = resultsFlow.take(1).first()
         val testObject = TestObject(name = "Some Test")
         assertThat(testObjects.first().name, `is`(testObject.name))
     }
 
     @Test
-    fun testBulkOffline(): Unit = runBlocking(Dispatchers.Main) {
+    fun testBulkSafe(): Unit = runBlocking(Dispatchers.Main) {
         val realm = testRealm()
         realm.transactAwait {
             it.delete(TestObject::class.java)
@@ -92,8 +92,15 @@ class RealmKtTest {
             }
             it.copyToRealm(objects)
         }
-        val resultsFlow = realm.where<TestObject>().flowAllOffline()
+        val resultsFlow = realm.where<TestObject>().flowAllSafe()
         val testObjects = resultsFlow.take(1)
         assertThat(testObjects.first().size, `is`(1000))
+    }
+
+    @Test(expected = FrozenException::class)
+    fun testExceptionIsThrownIfObjectIsFrozen(): Unit = runBlocking(Dispatchers.Main) {
+        val realm = testRealm().freeze()
+        val resultsFlow = realm.where<TestObject>().flowAllSafe()
+        val testObjects = resultsFlow.take(1).first()
     }
 }
