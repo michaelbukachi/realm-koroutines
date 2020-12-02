@@ -54,11 +54,20 @@ With flows:
  
 ```
 
+Note
+-----
+Don't use frozen objects if you are planning to use this library. You
+can't attach listeners to frozen objects meaning you can't convert the
+callbacks to suspended functions/flows
+As of version `1.0.0`, attempting to use a frozen object with this library
+will raise a `FrozenException`
+
+
 Download
 --------
 
 ```groovy
-implementation 'com.michaelbukachi:realmkoroutines:0.1.6'
+implementation 'com.michaelbukachi:realmkoroutines:1.0.0'
 ```
 
 License
