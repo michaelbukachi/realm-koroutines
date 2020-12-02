@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=0.1.5) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/0.1.5/link)
+[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=1.0.1) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/1.0.1/link)
 
 Realm Coroutines
 ----------------

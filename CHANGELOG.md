@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.0.1] - 2020-12-02
 ### Changed
 - Replaced `removeAllChangeListeners` with `removeChangeListener(listener)`
 - `isFrozen` check to core methods
