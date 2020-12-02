@@ -51,7 +51,7 @@ ext {
     siteUrl = 'https://github.com/michaelbukachi/realm-koroutines'
     gitUrl = 'https://github.com/michaelbukachi/realm-koroutines.git'
 
-    libraryVersion = '0.1.6'
+    libraryVersion = '1.0.0'
 
     developerId = 'michaelbukachi'
     developerName = 'Michael Bukachi'
