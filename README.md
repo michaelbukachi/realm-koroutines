@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=1.0.0) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/1.0.0/link)
+[ ![Download](https://api.bintray.com/packages/michaelbukachi/realm/realm-koroutines/images/download.svg?version=1.0.2) ](https://bintray.com/michaelbukachi/realm/realm-koroutines/1.0.2/link)
 
 Realm Coroutines
 ----------------
@@ -67,7 +67,7 @@ Download
 --------
 
 ```groovy
-implementation 'com.michaelbukachi:realmkoroutines:1.0.0'
+implementation 'com.michaelbukachi:realmkoroutines:1.0.2'
 ```
 
 License

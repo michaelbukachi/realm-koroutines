@@ -1,3 +1,7 @@
+## [1.0.2] - 2021-01-16
+### Changed
+- Added check for managed objects
+
 ## [1.0.1] - 2020-12-02
 ### Changed
 - Replaced `removeAllChangeListeners` with `removeChangeListener(listener)`
