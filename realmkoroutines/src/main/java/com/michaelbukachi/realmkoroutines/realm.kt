@@ -50,7 +50,12 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findAllAwaitSafe(query:
             val realm = query.realm
             val listener = RealmChangeListener<RealmResults<T>> { t ->
                 if (continuation.isActive) {
-                    continuation.resume(realm.copyFromRealm(t))
+                    if (t.isManaged) {
+                        continuation.resume(realm.copyFromRealm(t))
+                    } else {
+                        continuation.resume(t)
+                    }
+
                 }
             }
             val results = query.findAllAsync()
@@ -69,7 +74,11 @@ private suspend fun <T : RealmObject, S : RealmQuery<T>> findFirstAwaitSafe(quer
             val listener = RealmChangeListener { t: T? ->
                 if (continuation.isActive) {
                     t?.let {
-                        continuation.resume(realm.copyFromRealm(it))
+                        if (it.isManaged) {
+                            continuation.resume(realm.copyFromRealm(it))
+                        } else {
+                            continuation.resume(it)
+                        }
                     } ?: run {
                         continuation.resume(t)
                     }
@@ -124,7 +133,11 @@ fun <S : RealmObject> RealmQuery<S>.flowAll(): Flow<List<S>> = callbackFlow {
 fun <S : RealmObject> RealmQuery<S>.flowAllSafe(): Flow<List<S>> = callbackFlow {
     val listener = RealmChangeListener<RealmResults<S>> { t ->
 
-        offer(realm.copyFromRealm(t))
+        if (t.isManaged) {
+            offer(realm.copyFromRealm(t))
+        } else {
+            offer(t)
+        }
     }
     val results = findAllAsync()
     if (results.isFrozen) {
