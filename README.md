@@ -2,6 +2,10 @@
 
 Realm Coroutines
 ----------------
+**No longer maintained**
+
+Realm now has official coroutine support. You can check out the API [here](https://docs.mongodb.com/realm-sdks/kotlin/latest/kotlin-extensions/index.html).
+
 
 A collection of convenience extension functions for realm database.
 
